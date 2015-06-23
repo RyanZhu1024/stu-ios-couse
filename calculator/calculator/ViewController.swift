@@ -10,20 +10,54 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    @IBOutlet weak var digit: UILabel!
+    @IBOutlet weak var display: UILabel!
     
-    var isFirstClick = true
+    var userIsInTheMiddleOfTypingNumber = false
+    
+    var brain = CalculatorBrain()
 
 
+    /*this is append digit*/
     @IBAction func cal(sender: UIButton) {
-        let display = sender.currentTitle
-        if(!isFirstClick){
-            digit.text=digit.text!+display!
+        let digit = sender.currentTitle
+        if(userIsInTheMiddleOfTypingNumber){
+            display.text=display.text!+digit!
         }else{
-            digit.text=display
-            isFirstClick = false
+            display.text=digit
+            userIsInTheMiddleOfTypingNumber = true
         }
-        println("value is \(display)")
+    }
+    
+    @IBAction func operation(sender: UIButton) {
+        if userIsInTheMiddleOfTypingNumber{
+            enter()
+        }
+        if let operation = sender.currentTitle{
+            if let result = brain.performOperation(operation){
+                displayValue = result
+            }else{
+                displayValue = 0
+            }
+        }
+    }
+    
+    @IBAction func enter() {
+        userIsInTheMiddleOfTypingNumber=false
+        if let result = brain.pushOperand(displayValue){
+            displayValue = result
+        }else{
+            displayValue = 0
+        }
+    }
+    
+    var displayValue:Double{
+        get{
+            return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+        }
+        set{
+            display.text="\(newValue)"
+            userIsInTheMiddleOfTypingNumber=false
+        }
     }
 }
 
